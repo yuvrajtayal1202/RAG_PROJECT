@@ -15,14 +15,16 @@ class Config:
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     LLM_MODEL = "HuggingFaceH4/zephyr-7b-beta"
 
-    # EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Already using this - good choice!
-    # LLM_MODEL = "google/gemma-3-270m"    # Much smaller and faster model
+
+    # EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Good balance of speed and quality
+    # LLM_MODEL = "microsoft/DialoGPT-medium"  # Faster than 7B models
+
     MAX_NEW_TOKENS = 512
     TEMPERATURE = 0.1
     # File Settings
-    CHUNK_SIZE = 500
-    CHUNK_OVERLAP = 50
-    SEARCH_K = 2
+    CHUNK_SIZE = 800
+    CHUNK_OVERLAP = 100
+    SEARCH_K = 3
     
     # HuggingFace Token
     HF_TOKEN = os.getenv("HF_TOKEN")

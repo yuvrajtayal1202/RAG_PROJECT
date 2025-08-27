@@ -62,3 +62,21 @@ async def ask_question(request: QuestionRequest):
     
     
     
+# In app/api/endpoints.py
+@router.get("/cache/stats")
+async def get_cache_stats():
+    """Get cache statistics"""
+    from app.services.qa_service import qa_service
+    return {
+        "cache_size": len(qa_service.cache),
+        "max_cache_size": qa_service.max_cache_size,
+        "cache_hits": getattr(qa_service, "cache_hits", 0),
+        "cache_misses": getattr(qa_service, "cache_misses", 0)
+    }
+
+@router.post("/cache/clear")
+async def clear_cache():
+    """Clear the cache"""
+    from app.services.qa_service import qa_service
+    qa_service.clear_cache()
+    return {"message": "Cache cleared successfully"}

@@ -10,7 +10,7 @@ from app.config import config
 from concurrent.futures import ThreadPoolExecutor
 # Create a thread pool for CPU-intensive tasks
 executor = ThreadPoolExecutor(max_workers=4)
-
+# In app/services/document_service.py
 class DocumentService:
     def __init__(self):
         self.vector_store = None
@@ -20,13 +20,6 @@ class DocumentService:
         self.text_splitter = CharacterTextSplitter(
             chunk_size=config.CHUNK_SIZE, 
             chunk_overlap=config.CHUNK_OVERLAP
-        )
-        
-    def create_chroma_vectorstore(chunks, embeddings):
-        return Chroma.from_documents(
-            chunks, 
-            embeddings, 
-            persist_directory="./chroma_db"
         )
     
     def process_document(self, file_path: str, file_extension: str):
@@ -49,14 +42,12 @@ class DocumentService:
         print(f"Split document into {len(chunks)} chunks")
         
         # Create embeddings and vector store
-        # self.vector_store = FAISS.from_documents(chunks, self.embeddings)
-        self.vector_store = Chroma.from_documents(
-            chunks,
-            self.embeddings, 
-            persist_directory="./chroma_db"
-        )
-        
+        self.vector_store = FAISS.from_documents(chunks, self.embeddings)
         print("Document processed and stored in vector database")
+        
+        # Notify QA service to clear cache since document has changed
+        from app.services.qa_service import qa_service
+        qa_service.clear_cache()
         
         return len(chunks)
     
@@ -67,15 +58,6 @@ class DocumentService:
                 search_kwargs={"k": config.SEARCH_K}
             )
         return None
-    
-        # In app/services/document_service.py
-    async def process_document_async(self, file_path: str, file_extension: str):
-        """Process document asynchronously"""
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            executor,
-            lambda: self.process_document(file_path, file_extension)
-        )
 
 # Create a singleton instance
 document_service = DocumentService()
